@@ -1,0 +1,71 @@
+{
+  "name": "sampleconnflogo",
+  "type": "flogo:app",
+  "version": "0.0.1",
+  "description": "",
+  "appModel": "1.0.0",
+  "imports": [
+    "github.com/project-flogo/contrib/trigger/rest",
+    "github.com/project-flogo/contrib/activity/log",
+    "github.com/project-flogo/contrib/function/string",
+    "github.com/project-flogo/flow",
+    "github.com/project-flogo/kafkaconnection",
+    "github.com/project-flogo/contrib/trigger/timer",
+    "github.com/project-flogo/contrib/activity/kafka_shared"
+  ],
+  "triggers": [
+    {
+      "id": "flogo-time",
+      "ref": "#timer",
+      "handlers": [
+        {
+          
+          "actions": [
+            {
+              "ref": "#flow",
+              "settings": {
+                "flowURI": "res://flow:test"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "connections":{
+    "myrestconn":{
+      "ref":"github.com/project-flogo/kafkaconnection",
+      "settings": {
+        "brokerUrls" : "localhost:9092",
+        "topic"      : "syslog"
+      }
+    }
+  },
+  "resources": [
+    {
+      "id": "flow:test",
+      "data": {
+        "name": "test",
+        "description": "A sample flow",
+        "tasks": [
+          {
+            "id": "kafka",
+            "name": "Send Kafka Message using Shared Activity",
+            "activity": {
+              "ref": "#kafka_shared",
+              "settings":{
+                
+                "topic":"syslog"
+              },
+              "input": {
+                "connection":"conn://myrestconn",
+                "message": "SAmple"
+               
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
